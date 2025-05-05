@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Layout from '../../components/Layout';
 import PasswordProtection from '../../components/PasswordProtection';
 import PodcastCard from '../../components/PodcastCard';
-import { getFriendById, getFriendPodcasts } from '../../lib/friends';
+import { getFriendById, getFriendPodcasts } from '../../lib/clientData';
 import styles from '../../styles/FriendProfile.module.css';
 
 export default function FriendProfile({ friend, podcasts }) {
@@ -78,4 +78,4 @@ export async function getStaticPaths() {
     paths: [],
     fallback: 'blocking',
   };
-} 
+}
