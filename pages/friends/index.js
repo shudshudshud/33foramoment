@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Layout from '../../components/Layout';
 import PasswordProtection from '../../components/PasswordProtection';
-import { getAllFriends } from '../../lib/friends';
+import { getAllFriends } from '../../lib/clientData';
 import styles from '../../styles/Friends.module.css';
 
 export default function Friends({ friends }) {
@@ -57,4 +57,4 @@ export async function getStaticProps() {
       },
     };
   }
-} 
+}
