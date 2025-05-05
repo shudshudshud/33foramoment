@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import PodcastCard from '../components/PodcastCard';
-import { getAllPodcasts } from '../lib/podcasts';
+import { getAllPodcasts } from '../lib/clientData';
 import styles from '../styles/Home.module.css';
 
 export default function Home({ podcasts }) {
@@ -46,4 +46,4 @@ export async function getStaticProps() {
       },
     };
   }
-} 
+}
