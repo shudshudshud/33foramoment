@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Layout from '../../components/Layout';
 import AudioPlayer from '../../components/AudioPlayer';
-import { getPodcastById, getPodcastAudioUrl } from '../../lib/podcasts';
+import { getPodcastById, getPodcastAudioUrl } from '../../lib/clientData';
 import styles from '../../styles/Podcast.module.css';
 
 export default function Podcast({ podcast, audioUrl }) {
@@ -71,4 +71,4 @@ export async function getStaticPaths() {
     paths: [],
     fallback: 'blocking',
   };
-} 
+}
