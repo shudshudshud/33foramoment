@@ -1,0 +1,44 @@
+.dashboard {
+  padding: 2rem 1rem;
+}
+
+.dashboard h1 {
+  margin-bottom: 2rem;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.section h2 {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.activityList,
+.podcastList,
+.friendsList {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.activityList {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.podcastList {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.friendsList {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+@media (max-width: 768px) {
+  .activityList,
+  .podcastList,
+  .friendsList {
+    grid-template-columns: 1fr;
+  }
+} 

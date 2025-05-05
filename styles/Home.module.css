@@ -1,0 +1,34 @@
+.hero {
+  text-align: center;
+  padding: 4rem 1rem;
+  background-color: #f8f9fa;
+  margin-bottom: 2rem;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin: 0 0 1rem;
+  color: #333;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: #666;
+  margin: 0;
+}
+
+.podcasts {
+  padding: 2rem 1rem;
+}
+
+.podcasts h2 {
+  font-size: 2rem;
+  margin: 0 0 2rem;
+  color: #333;
+}
+
+.podcastGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+} 
