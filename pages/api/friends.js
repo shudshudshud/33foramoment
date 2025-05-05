@@ -1,30 +1,47 @@
-import { requireAuth } from '../../lib/auth';
-import { getAllFriends, getFriendById, getFriendPodcasts } from '../../lib/friends';
+// pages/api/friends.js
+import { getFriendsData, getPodcastsData } from '../../lib/clientData';
 
-export default async function handler(req, res) {
+export default function handler(req, res) {
   try {
-    await requireAuth(req, res, async () => {
-      if (req.method === 'GET') {
-        const { id, podcasts } = req.query;
-
-        if (id) {
-          if (podcasts) {
-            const friendPodcasts = await getFriendPodcasts(id);
-            return res.status(200).json(friendPodcasts);
-          }
-
-          const friend = await getFriendById(id);
-          return res.status(200).json(friend);
-        }
-
-        const friends = await getAllFriends();
-        return res.status(200).json(friends);
+    // Get method from request
+    const { method } = req;
+    
+    // Only allow GET requests
+    if (method !== 'GET') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    
+    // Get query parameters
+    const { id, podcasts } = req.query;
+    
+    // Get all friends data
+    const friendsData = getFriendsData();
+    
+    // If ID is provided, return specific friend
+    if (id) {
+      const friend = friendsData.find(f => f.id === id);
+      
+      // If friend not found, return 404
+      if (!friend) {
+        return res.status(404).json({ error: 'Friend not found' });
       }
-
-      res.status(405).json({ error: 'Method not allowed' });
-    });
+      
+      // If podcasts flag is set, return the podcasts for this friend
+      if (podcasts) {
+        const allPodcasts = getPodcastsData();
+        const friendPodcasts = allPodcasts.filter(p => p.friendId === id);
+        
+        return res.status(200).json(friendPodcasts);
+      }
+      
+      // Return the friend data
+      return res.status(200).json(friend);
+    }
+    
+    // Return all friends
+    return res.status(200).json(friendsData);
   } catch (error) {
     console.error('API Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
-} 
+}

@@ -1,40 +1,69 @@
 import { useState, useEffect } from 'react';
+import { verifyPassword } from '../lib/clientData';
 import styles from './PasswordProtection.module.css';
 
-export default function PasswordProtection({ children }) {
+export default function PasswordProtection({ children, pageId }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is already authenticated
-    const storedAuth = localStorage.getItem('isAuthenticated');
-    if (storedAuth === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
+    const checkAuth = () => {
+      // If no pageId is specified, use 'global' as default
+      const authKey = `auth_${pageId || 'global'}`;
+      const storedAuth = localStorage.getItem(authKey);
+      
+      if (storedAuth === 'true') {
+        setIsAuthenticated(true);
+      }
+      
+      setIsLoading(false);
+    };
+    
+    // Execute the check auth function
+    checkAuth();
+  }, [pageId]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const correctPassword = process.env.NEXT_PUBLIC_PASSWORD;
     
-    if (password === correctPassword) {
+    // Clear previous error
+    setError('');
+    
+    // Check if password is correct
+    if (verifyPassword(password)) {
       setIsAuthenticated(true);
-      localStorage.setItem('isAuthenticated', 'true');
-      setError('');
+      
+      // Save authentication status to localStorage
+      const authKey = `auth_${pageId || 'global'}`;
+      localStorage.setItem(authKey, 'true');
     } else {
       setError('Incorrect password. Please try again.');
     }
   };
 
-  if (!process.env.NEXT_PUBLIC_PASSWORD_PROTECTION) {
+  // If password protection is disabled in environment
+  if (process.env.NEXT_PUBLIC_PASSWORD_PROTECTION === 'false') {
     return children;
   }
 
+  // If component is still loading, show a loading indicator
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Loading...</div>
+      </div>
+    );
+  }
+
+  // If user is authenticated, render children
   if (isAuthenticated) {
     return children;
   }
 
+  // Otherwise, show password form
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -54,4 +83,4 @@ export default function PasswordProtection({ children }) {
       </form>
     </div>
   );
-} 
+}
