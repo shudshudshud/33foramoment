@@ -4,6 +4,8 @@ const nextConfig = {
     
     // Handle environment variables
     env: {
+      // This will be overridden by Vercel's environment variables
+      NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://33foramoment.vercel.app',
       // Make sure these match your vercel environment variables
       NEXT_PUBLIC_PASSWORD: process.env.NEXT_PUBLIC_PASSWORD,
       NEXT_PUBLIC_PASSWORD_PROTECTION: process.env.NEXT_PUBLIC_PASSWORD_PROTECTION || 'true',
@@ -14,7 +16,7 @@ const nextConfig = {
     
     // Image configuration for optimization
     images: {
-      domains: ['drive.google.com', 'lh3.googleusercontent.com'],
+      domains: ['drive.google.com'],
       unoptimized: process.env.NODE_ENV === 'development' ? false : true,
     },
     

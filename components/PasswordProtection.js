@@ -27,6 +27,20 @@ export default function PasswordProtection({ children, accessType = 'general', f
       const envVarName = `NEXT_PUBLIC_FRIEND_PASSWORD_${friendId.toUpperCase()}`;
       const correctPassword = process.env[envVarName];
       
+      // Enhanced debugging
+      console.log('[DEBUG] Friend authentication:', {
+        friendId,
+        envVarName,
+        hasPassword: !!correctPassword,
+        correctPassword: correctPassword ? '***' : null,
+        allEnvVars: Object.keys(process.env)
+          .filter(key => key.startsWith('NEXT_PUBLIC_'))
+          .reduce((acc, key) => {
+            acc[key] = process.env[key] ? '***' : null;
+            return acc;
+          }, {})
+      });
+      
       if (!correctPassword) {
         console.error(`[ERROR] Missing environment variable: ${envVarName}`);
         throw new Error(`Missing password configuration for ${friendId}`);
