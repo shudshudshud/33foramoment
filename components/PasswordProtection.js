@@ -9,16 +9,31 @@ export default function PasswordProtection({ children, accessType = 'general', f
 
   // Debug environment variables on component mount
   useEffect(() => {
-    console.log('[DEBUG] PasswordProtection mounted with:', {
+    // Log all environment variables
+    const allEnvVars = Object.keys(process.env)
+      .filter(key => key.startsWith('NEXT_PUBLIC_'))
+      .reduce((acc, key) => {
+        acc[key] = process.env[key] ? '***' : null;
+        return acc;
+      }, {});
+
+    // Special check for Malcolm's password
+    const malcolmPassword = process.env.NEXT_PUBLIC_FRIEND_PASSWORD_MALCOLM;
+    
+    console.log('[DEBUG] Environment Variables Check:', {
       accessType,
       friendId,
       pageTitle,
-      allEnvVars: Object.keys(process.env)
-        .filter(key => key.startsWith('NEXT_PUBLIC_'))
-        .reduce((acc, key) => {
-          acc[key] = process.env[key] ? '***' : null;
-          return acc;
-        }, {})
+      allEnvVars,
+      malcolmPassword: malcolmPassword ? '***' : null,
+      malcolmPasswordLength: malcolmPassword ? malcolmPassword.length : 0,
+      malcolmPasswordType: typeof malcolmPassword,
+      isMalcolmPasswordDefined: typeof malcolmPassword !== 'undefined',
+      isMalcolmPasswordNull: malcolmPassword === null,
+      isMalcolmPasswordEmpty: malcolmPassword === '',
+      processEnvType: typeof process.env,
+      processEnvKeys: Object.keys(process.env),
+      nextPublicKeys: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_')),
     });
   }, [accessType, friendId, pageTitle]);
 
@@ -32,10 +47,19 @@ export default function PasswordProtection({ children, accessType = 'general', f
         envVarName,
         hasPassword: !!correctPassword,
         correctPassword: correctPassword ? '***' : null,
+        correctPasswordLength: correctPassword ? correctPassword.length : 0,
+        correctPasswordType: typeof correctPassword,
+        isPasswordDefined: typeof correctPassword !== 'undefined',
+        isPasswordNull: correctPassword === null,
+        isPasswordEmpty: correctPassword === '',
         allFriendPasswords: Object.keys(process.env)
           .filter(key => key.startsWith('NEXT_PUBLIC_FRIEND_PASSWORD_'))
           .reduce((acc, key) => {
-            acc[key] = process.env[key] ? '***' : null;
+            acc[key] = {
+              exists: !!process.env[key],
+              length: process.env[key] ? process.env[key].length : 0,
+              type: typeof process.env[key]
+            };
             return acc;
           }, {})
       });
@@ -46,7 +70,11 @@ export default function PasswordProtection({ children, accessType = 'general', f
           envVarName,
           availableEnvVars: Object.keys(process.env)
             .filter(key => key.startsWith('NEXT_PUBLIC_'))
-            .join(', ')
+            .join(', '),
+          processEnv: Object.keys(process.env),
+          nextPublicEnv: Object.keys(process.env)
+            .filter(key => key.startsWith('NEXT_PUBLIC_'))
+            .map(key => ({ key, exists: !!process.env[key] }))
         });
         throw new Error(`Missing password configuration for ${friendId}`);
       }
