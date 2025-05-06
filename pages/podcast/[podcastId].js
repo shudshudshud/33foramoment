@@ -1,10 +1,10 @@
 import Head from 'next/head';
 import Layout from '../../components/Layout';
-import AudioPlayer from '../../components/AudioPlayer';
-import { getPodcastById, getPodcastAudioUrl } from '../../lib/clientData';
+import DriveAudioPlayer from '../../components/DriveAudioPlayer';
+import { getPodcastById, extractGoogleDriveId } from '../../lib/clientData';
 import styles from '../../styles/Podcast.module.css';
 
-export default function Podcast({ podcast, audioUrl }) {
+export default function Podcast({ podcast, fileId }) {
   return (
     <Layout>
       <Head>
@@ -15,28 +15,28 @@ export default function Podcast({ podcast, audioUrl }) {
       <article className={styles.podcast}>
         <div className={styles.header}>
           <img
-            src={podcast.coverImage}
+            src={podcast.coverImage || '/images/default-cover.jpg'}
             alt={podcast.title}
             className={styles.coverImage}
           />
           <div className={styles.info}>
             <h1>{podcast.title}</h1>
             <p className={styles.date}>
-              {new Date(podcast.date).toLocaleDateString()}
+              {new Date(podcast.recordedDate).toLocaleDateString()}
             </p>
             <p className={styles.description}>{podcast.description}</p>
           </div>
         </div>
 
         <div className={styles.playerContainer}>
-          <AudioPlayer src={audioUrl} title={podcast.title} />
+          <DriveAudioPlayer fileId={fileId} title={podcast.title} />
         </div>
 
         <div className={styles.content}>
           <h2>Show Notes</h2>
           <div
             className={styles.showNotes}
-            dangerouslySetInnerHTML={{ __html: podcast.showNotes }}
+            dangerouslySetInnerHTML={{ __html: podcast.showNotes || '<p>No show notes available for this episode.</p>' }}
           />
         </div>
       </article>
@@ -47,12 +47,18 @@ export default function Podcast({ podcast, audioUrl }) {
 export async function getStaticProps({ params }) {
   try {
     const podcast = await getPodcastById(params.podcastId);
-    const { url: audioUrl } = await getPodcastAudioUrl(params.podcastId);
+    const fileId = extractGoogleDriveId(podcast.driveUrl);
+
+    if (!podcast || !fileId) {
+      return {
+        notFound: true,
+      };
+    }
 
     return {
       props: {
         podcast,
-        audioUrl,
+        fileId,
       },
       revalidate: 60, // Revalidate every minute
     };
