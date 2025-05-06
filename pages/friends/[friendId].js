@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Layout from '../../components/Layout';
 import PasswordProtection from '../../components/PasswordProtection';
@@ -7,6 +7,21 @@ import { getFriendById, getFriendPodcasts, updatePodcastAccess, getAllFriends } 
 import styles from '../../styles/FriendProfile.module.css';
 
 export default function FriendProfile({ friend, podcasts }) {
+  // Debug environment variables
+  useEffect(() => {
+    console.log('[DEBUG] Environment variables:', {
+      friendId: friend.id,
+      envVarName: `NEXT_PUBLIC_FRIEND_PASSWORD_${friend.id.toUpperCase()}`,
+      password: process.env[`NEXT_PUBLIC_FRIEND_PASSWORD_${friend.id.toUpperCase()}`] ? '***' : null,
+      allEnvVars: Object.keys(process.env)
+        .filter(key => key.startsWith('NEXT_PUBLIC_'))
+        .reduce((acc, key) => {
+          acc[key] = process.env[key] ? '***' : null;
+          return acc;
+        }, {})
+    });
+  }, [friend.id]);
+
   const [podcastAccess, setPodcastAccess] = useState(
     podcasts.reduce((acc, podcast) => {
       acc[podcast.id] = podcast.accessLevel;
