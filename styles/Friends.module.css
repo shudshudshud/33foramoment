@@ -16,6 +16,15 @@
   border-bottom: 2px solid var(--border-color);
 }
 
+.intro {
+  margin-bottom: 2rem;
+}
+
+.intro p {
+  line-height: 1.6;
+  color: var(--secondary-color);
+}
+
 .friendsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -29,6 +38,10 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .friendCard:hover {
@@ -54,6 +67,7 @@
   margin-bottom: 1rem;
   font-size: 0.9rem;
   line-height: 1.5;
+  flex-grow: 1;
 }
 
 .link {
@@ -63,6 +77,7 @@
   color: white;
   border-radius: 4px;
   transition: background-color 0.2s;
+  text-decoration: none;
 }
 
 .link:hover {
@@ -73,4 +88,4 @@
   .friendsGrid {
     grid-template-columns: 1fr;
   }
-} 
+}

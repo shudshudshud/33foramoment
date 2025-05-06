@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import Layout from '../../components/Layout';
 import { getAllFriends } from '../../lib/clientData';
 import styles from '../../styles/Friends.module.css';
@@ -33,9 +34,9 @@ export default function Friends({ friends }) {
                 />
                 <h3>{friend.name}</h3>
                 <p>{friend.bio ? friend.bio.substring(0, 100) + '...' : 'No bio available'}</p>
-                <a href={`/friends/${friend.id}`} className={styles.link}>
+                <Link href={`/friends/${friend.id}`} className={styles.link}>
                   Access Your Profile
-                </a>
+                </Link>
               </div>
             ))}
           </div>

@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Layout from '../../components/Layout';
 import PasswordProtection from '../../components/PasswordProtection';
 import PodcastCard from '../../components/PodcastCard';
-import { getFriendById, getFriendPodcasts, updatePodcastAccess } from '../../lib/clientData';
+import { getFriendById, getFriendPodcasts, updatePodcastAccess, getAllFriends } from '../../lib/clientData';
 import styles from '../../styles/FriendProfile.module.css';
 
 export default function FriendProfile({ friend, podcasts }) {
@@ -35,7 +35,6 @@ export default function FriendProfile({ friend, podcasts }) {
     });
     
     // Send update to backend
-    // In a real implementation, this would call an API
     try {
       await updatePodcastAccess(podcastId, newAccessLevel);
       
@@ -179,10 +178,21 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths() {
-  // In a real application, you would fetch all friend IDs here
-  // For now, we'll return an empty paths array
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
+  try {
+    const friends = await getAllFriends();
+    const paths = friends.map((friend) => ({
+      params: { friendId: friend.id },
+    }));
+    
+    return {
+      paths,
+      fallback: 'blocking',
+    };
+  } catch (error) {
+    console.error('Error generating static paths:', error);
+    return {
+      paths: [],
+      fallback: 'blocking',
+    };
+  }
 }
