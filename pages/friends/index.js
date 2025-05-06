@@ -34,9 +34,18 @@ export default function Friends({ friends }) {
                 />
                 <h3>{friend.name}</h3>
                 <p>{friend.bio ? friend.bio.substring(0, 100) + '...' : 'No bio available'}</p>
-                <Link href={`/friends/${friend.id}`} className={styles.link}>
-                  Access Your Profile
+                
+                {/* Primary access button - more prominent */}
+                <Link href={`/friends/${friend.id}`}>
+                  <button className={styles.accessButton}>
+                    Access Your Profile
+                  </button>
                 </Link>
+                
+                {/* Additional instruction */}
+                <p className={styles.passwordNote}>
+                  You'll need to enter your password to access your profile.
+                </p>
               </div>
             ))}
           </div>
