@@ -7,7 +7,8 @@ export const podcasts = [
     accessLevel: "me",
     recordedDate: "2025-04-27",
     duration: "42:18",
-    coverImage: "/images/default-cover.jpg"
+    coverImage: "/images/default-cover.jpg",
+    driveUrl: process.env.NEXT_PUBLIC_DRIVE_URL_MALCOLM
   },
   {
     id: "podcast-venessa",
@@ -17,7 +18,8 @@ export const podcasts = [
     accessLevel: "partner",
     recordedDate: "2025-04-24",
     duration: "38:45",
-    coverImage: "/images/default-cover.jpg"
+    coverImage: "/images/default-cover.jpg",
+    driveUrl: process.env.NEXT_PUBLIC_DRIVE_URL_VENESSA
   },
   {
     id: "podcast-public-example",
@@ -27,6 +29,7 @@ export const podcasts = [
     accessLevel: "public",
     recordedDate: "2025-05-01",
     duration: "15:30",
-    coverImage: "/images/default-cover.jpg"
+    coverImage: "/images/default-cover.jpg",
+    driveUrl: process.env.NEXT_PUBLIC_DRIVE_URL_FRIEND_EXAMPLE
   }
 ]; 

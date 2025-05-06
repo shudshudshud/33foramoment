@@ -29,7 +29,7 @@ export default function PasswordProtection({ children, accessType = 'general', f
       
       if (!correctPassword) {
         console.error(`[ERROR] Missing environment variable: ${envVarName}`);
-        throw new Error('Authentication configuration error');
+        throw new Error(`Missing password configuration for ${friendId}`);
       }
       
       return correctPassword;
@@ -74,7 +74,7 @@ export default function PasswordProtection({ children, accessType = 'general', f
       }
     } catch (err) {
       console.error('[ERROR] Authentication error:', err);
-      setError('Authentication configuration error. Please contact support.');
+      setError(err.message || 'Authentication configuration error. Please contact support.');
     }
   };
 
