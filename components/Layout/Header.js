@@ -10,10 +10,12 @@ export default function Header() {
         </Link>
         <div className={styles.navLinks}>
           <Link href="/">Home</Link>
+          <Link href="/public">Public</Link>
+          <Link href="/partner">Partner</Link>
+          <Link href="/me">Irsyad Only</Link>
           <Link href="/friends">Friends</Link>
-          <Link href="/me">Dashboard</Link>
         </div>
       </nav>
     </header>
   );
-} 
+}
