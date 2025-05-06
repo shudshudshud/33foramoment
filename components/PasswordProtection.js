@@ -4,103 +4,132 @@ import styles from './PasswordProtection.module.css';
 export default function PasswordProtection({ children, accessType = 'general', friendId = null, pageTitle = 'Protected Content' }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication status on mount
+  // Debug environment variables on component mount
   useEffect(() => {
-    const checkAuth = () => {
-      const authKey = friendId 
-        ? `auth_friend_${friendId}`
-        : `auth_${accessType}`;
-      
-      const storedAuth = localStorage.getItem(authKey);
-      setIsAuthenticated(storedAuth === 'true');
-      setIsLoading(false);
-    };
-    
-    checkAuth();
-  }, [accessType, friendId]);
+    console.log('[DEBUG] PasswordProtection mounted with:', {
+      accessType,
+      friendId,
+      pageTitle,
+      allEnvVars: Object.keys(process.env)
+        .filter(key => key.startsWith('NEXT_PUBLIC_'))
+        .reduce((acc, key) => {
+          acc[key] = process.env[key] ? '***' : null;
+          return acc;
+        }, {})
+    });
+  }, [accessType, friendId, pageTitle]);
 
   const getCorrectPassword = () => {
     if (friendId) {
       const envVarName = `NEXT_PUBLIC_FRIEND_PASSWORD_${friendId.toUpperCase()}`;
       const correctPassword = process.env[envVarName];
       
-      // Enhanced debugging
-      console.log('[DEBUG] Friend authentication:', {
+      console.log('[DEBUG] Friend password check:', {
         friendId,
         envVarName,
         hasPassword: !!correctPassword,
         correctPassword: correctPassword ? '***' : null,
-        allEnvVars: Object.keys(process.env)
-          .filter(key => key.startsWith('NEXT_PUBLIC_'))
+        allFriendPasswords: Object.keys(process.env)
+          .filter(key => key.startsWith('NEXT_PUBLIC_FRIEND_PASSWORD_'))
           .reduce((acc, key) => {
             acc[key] = process.env[key] ? '***' : null;
             return acc;
           }, {})
       });
-      
+
       if (!correctPassword) {
-        console.error(`[ERROR] Missing environment variable: ${envVarName}`);
+        console.error('[ERROR] Missing friend password:', {
+          friendId,
+          envVarName,
+          availableEnvVars: Object.keys(process.env)
+            .filter(key => key.startsWith('NEXT_PUBLIC_'))
+            .join(', ')
+        });
         throw new Error(`Missing password configuration for ${friendId}`);
       }
-      
       return correctPassword;
     }
 
-    // For non-friend access
-    switch (accessType) {
-      case 'me':
-        if (!process.env.NEXT_PUBLIC_OWNER_PASSWORD) {
-          throw new Error('Missing owner password configuration');
-        }
-        return process.env.NEXT_PUBLIC_OWNER_PASSWORD;
-      case 'partner':
-        if (!process.env.NEXT_PUBLIC_PARTNER_PASSWORD) {
-          throw new Error('Missing partner password configuration');
-        }
-        return process.env.NEXT_PUBLIC_PARTNER_PASSWORD;
-      default:
-        if (!process.env.NEXT_PUBLIC_PASSWORD) {
-          throw new Error('Missing general password configuration');
-        }
-        return process.env.NEXT_PUBLIC_PASSWORD;
+    if (accessType === 'me') {
+      const ownerPassword = process.env.NEXT_PUBLIC_OWNER_PASSWORD;
+      console.log('[DEBUG] Owner password check:', {
+        hasPassword: !!ownerPassword,
+        password: ownerPassword ? '***' : null
+      });
+      if (!ownerPassword) {
+        throw new Error('Missing owner password configuration');
+      }
+      return ownerPassword;
     }
+
+    if (accessType === 'partner') {
+      const partnerPassword = process.env.NEXT_PUBLIC_PARTNER_PASSWORD;
+      console.log('[DEBUG] Partner password check:', {
+        hasPassword: !!partnerPassword,
+        password: partnerPassword ? '***' : null
+      });
+      if (!partnerPassword) {
+        throw new Error('Missing partner password configuration');
+      }
+      return partnerPassword;
+    }
+
+    const generalPassword = process.env.NEXT_PUBLIC_PASSWORD;
+    console.log('[DEBUG] General password check:', {
+      hasPassword: !!generalPassword,
+      password: generalPassword ? '***' : null
+    });
+    if (!generalPassword) {
+      throw new Error('Missing general password configuration');
+    }
+    return generalPassword;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-    
     try {
       const correctPassword = getCorrectPassword();
-      
       if (password === correctPassword) {
-        const authKey = friendId 
-          ? `auth_friend_${friendId}`
-          : `auth_${accessType}`;
-        
-        localStorage.setItem(authKey, 'true');
         setIsAuthenticated(true);
+        setError(null);
       } else {
-        setError('Incorrect password. Please try again.');
+        setError('Incorrect password');
       }
     } catch (err) {
-      console.error('[ERROR] Authentication error:', err);
-      setError(err.message || 'Authentication configuration error. Please contact support.');
+      console.error('[ERROR] Password verification failed:', err);
+      setError(err.message);
     }
   };
 
-  // Early returns for different states
+  // Check authentication status on mount
+  useEffect(() => {
+    try {
+      getCorrectPassword(); // This will throw if password is missing
+      setIsLoading(false);
+    } catch (err) {
+      console.error('[ERROR] Initial password check failed:', err);
+      setError(err.message);
+      setIsLoading(false);
+    }
+  }, []);
+
   if (process.env.NEXT_PUBLIC_PASSWORD_PROTECTION === 'false') {
     return children;
   }
 
   if (isLoading) {
+    return <div className={styles.loading}>Loading...</div>;
+  }
+
+  if (error) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading...</div>
+      <div className={styles.error}>
+        <h2>Error</h2>
+        <p>{error}</p>
+        <p>Please check your environment variables in Vercel.</p>
       </div>
     );
   }
@@ -109,25 +138,22 @@ export default function PasswordProtection({ children, accessType = 'general', f
     return children;
   }
 
-  // Password form
   return (
     <div className={styles.container}>
+      <h2>{pageTitle}</h2>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h2>{pageTitle}</h2>
-        <p>Please enter the password to access this content.</p>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter password"
           className={styles.input}
-          autoComplete="current-password"
         />
-        {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.button}>
           Submit
         </button>
       </form>
+      {error && <p className={styles.error}>{error}</p>}
     </div>
   );
 }
