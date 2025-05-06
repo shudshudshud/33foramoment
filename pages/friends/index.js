@@ -1,42 +1,47 @@
 import Head from 'next/head';
 import Layout from '../../components/Layout';
-import PasswordProtection from '../../components/PasswordProtection';
 import { getAllFriends } from '../../lib/clientData';
 import styles from '../../styles/Friends.module.css';
 
 export default function Friends({ friends }) {
   return (
-    <PasswordProtection>
-      <Layout>
-        <Head>
-          <title>Friends Portal - 33 for a Moment</title>
-        </Head>
+    <Layout>
+      <Head>
+        <title>Friends Portal - 33 for a Moment</title>
+      </Head>
 
-        <div className={styles.friends}>
-          <h1>Friends Portal</h1>
-          
-          <section className={styles.section}>
-            <h2>Our Friends</h2>
-            <div className={styles.friendsGrid}>
-              {friends.map((friend) => (
-                <div key={friend.id} className={styles.friendCard}>
-                  <img
-                    src={friend.avatar}
-                    alt={friend.name}
-                    className={styles.avatar}
-                  />
-                  <h3>{friend.name}</h3>
-                  <p>{friend.bio}</p>
-                  <a href={`/friends/${friend.id}`} className={styles.link}>
-                    View Profile
-                  </a>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      </Layout>
-    </PasswordProtection>
+      <div className={styles.friends}>
+        <h1>Friends Portal</h1>
+        
+        <section className={styles.intro}>
+          <p>
+            Welcome to the Friends Portal! This is where friends can log in to their individual 
+            profiles to manage the visibility of their podcast conversations. 
+            Use the password Irsyad provided to you.
+          </p>
+        </section>
+        
+        <section className={styles.section}>
+          <h2>Find Your Profile</h2>
+          <div className={styles.friendsGrid}>
+            {friends.map((friend) => (
+              <div key={friend.id} className={styles.friendCard}>
+                <img
+                  src={friend.avatar}
+                  alt={friend.name}
+                  className={styles.avatar}
+                />
+                <h3>{friend.name}</h3>
+                <p>{friend.bio ? friend.bio.substring(0, 100) + '...' : 'No bio available'}</p>
+                <a href={`/friends/${friend.id}`} className={styles.link}>
+                  Access Your Profile
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </Layout>
   );
 }
 
