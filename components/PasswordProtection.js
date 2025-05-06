@@ -7,87 +7,82 @@ export default function PasswordProtection({ children, accessType = 'general', f
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
+  // Check authentication status on mount
   useEffect(() => {
-    // Check if user is already authenticated
     const checkAuth = () => {
-      // Create a unique auth key based on access type and friend ID (if applicable)
       const authKey = friendId 
         ? `auth_friend_${friendId}`
         : `auth_${accessType}`;
       
       const storedAuth = localStorage.getItem(authKey);
-      
-      if (storedAuth === 'true') {
-        setIsAuthenticated(true);
-      }
-      
+      setIsAuthenticated(storedAuth === 'true');
       setIsLoading(false);
     };
     
-    // Execute the check auth function
     checkAuth();
   }, [accessType, friendId]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Clear previous error
-    setError('');
-    
-    // Determine which verification method to use
-    let isPasswordCorrect = false;
-    
+  const getCorrectPassword = () => {
     if (friendId) {
-      // Each friend has their own dedicated environment variable
-      // Format: NEXT_PUBLIC_FRIEND_PASSWORD_[FRIENDID]
       const envVarName = `NEXT_PUBLIC_FRIEND_PASSWORD_${friendId.toUpperCase()}`;
       const correctPassword = process.env[envVarName];
       
-      console.log('[DEBUG] Friend authentication:', { 
-        friendId,
-        envVarName,
-        hasPassword: !!correctPassword
-      });
-      
-      isPasswordCorrect = password === correctPassword;
-    } else {
-      // For non-friend access, use the existing environment variables
-      let correctPassword;
-      
-      switch (accessType) {
-        case 'me':
-          correctPassword = process.env.NEXT_PUBLIC_OWNER_PASSWORD;
-          break;
-        case 'partner':
-          correctPassword = process.env.NEXT_PUBLIC_PARTNER_PASSWORD;
-          break;
-        default:
-          correctPassword = process.env.NEXT_PUBLIC_PASSWORD;
+      if (!correctPassword) {
+        console.error(`[ERROR] Missing environment variable: ${envVarName}`);
+        throw new Error('Authentication configuration error');
       }
       
-      isPasswordCorrect = password === correctPassword;
+      return correctPassword;
     }
-    
-    if (isPasswordCorrect) {
-      setIsAuthenticated(true);
-      
-      // Save authentication status to localStorage with the appropriate key
-      const authKey = friendId 
-        ? `auth_friend_${friendId}`
-        : `auth_${accessType}`;
-      
-      localStorage.setItem(authKey, 'true');
-    } else {
-      setError('Incorrect password. Please try again.');
+
+    // For non-friend access
+    switch (accessType) {
+      case 'me':
+        if (!process.env.NEXT_PUBLIC_OWNER_PASSWORD) {
+          throw new Error('Missing owner password configuration');
+        }
+        return process.env.NEXT_PUBLIC_OWNER_PASSWORD;
+      case 'partner':
+        if (!process.env.NEXT_PUBLIC_PARTNER_PASSWORD) {
+          throw new Error('Missing partner password configuration');
+        }
+        return process.env.NEXT_PUBLIC_PARTNER_PASSWORD;
+      default:
+        if (!process.env.NEXT_PUBLIC_PASSWORD) {
+          throw new Error('Missing general password configuration');
+        }
+        return process.env.NEXT_PUBLIC_PASSWORD;
     }
   };
 
-  // If password protection is disabled in environment
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+    
+    try {
+      const correctPassword = getCorrectPassword();
+      
+      if (password === correctPassword) {
+        const authKey = friendId 
+          ? `auth_friend_${friendId}`
+          : `auth_${accessType}`;
+        
+        localStorage.setItem(authKey, 'true');
+        setIsAuthenticated(true);
+      } else {
+        setError('Incorrect password. Please try again.');
+      }
+    } catch (err) {
+      console.error('[ERROR] Authentication error:', err);
+      setError('Authentication configuration error. Please contact support.');
+    }
+  };
+
+  // Early returns for different states
   if (process.env.NEXT_PUBLIC_PASSWORD_PROTECTION === 'false') {
     return children;
   }
 
-  // If component is still loading, show a loading indicator
   if (isLoading) {
     return (
       <div className={styles.container}>
@@ -96,12 +91,11 @@ export default function PasswordProtection({ children, accessType = 'general', f
     );
   }
 
-  // If user is authenticated, render children
   if (isAuthenticated) {
     return children;
   }
 
-  // Otherwise, show password form
+  // Password form
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -113,6 +107,7 @@ export default function PasswordProtection({ children, accessType = 'general', f
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter password"
           className={styles.input}
+          autoComplete="current-password"
         />
         {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.button}>
