@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { verifyPassword, verifyPasswordForAccess, verifyFriendPassword } from '../lib/clientData';
 import styles from './PasswordProtection.module.css';
 
 export default function PasswordProtection({ children, accessType = 'general', friendId = null, pageTitle = 'Protected Content' }) {
@@ -39,17 +38,34 @@ export default function PasswordProtection({ children, accessType = 'general', f
     let isPasswordCorrect = false;
     
     if (friendId) {
-      // Verify friend-specific password
-      isPasswordCorrect = verifyFriendPassword(password, friendId);
-    } else {
-      // Verify access-type password
-      isPasswordCorrect = verifyPasswordForAccess(password, accessType);
+      // Each friend has their own dedicated environment variable
+      // Format: NEXT_PUBLIC_FRIEND_PASSWORD_[FRIENDID]
+      const envVarName = `NEXT_PUBLIC_FRIEND_PASSWORD_${friendId.toUpperCase()}`;
+      const correctPassword = process.env[envVarName];
       
-      // Fall back to general password if specific one fails
-      // This helps with backward compatibility
-      if (!isPasswordCorrect) {
-        isPasswordCorrect = verifyPassword(password);
+      console.log('[DEBUG] Friend authentication:', { 
+        friendId,
+        envVarName,
+        hasPassword: !!correctPassword
+      });
+      
+      isPasswordCorrect = password === correctPassword;
+    } else {
+      // For non-friend access, use the existing environment variables
+      let correctPassword;
+      
+      switch (accessType) {
+        case 'me':
+          correctPassword = process.env.NEXT_PUBLIC_OWNER_PASSWORD;
+          break;
+        case 'partner':
+          correctPassword = process.env.NEXT_PUBLIC_PARTNER_PASSWORD;
+          break;
+        default:
+          correctPassword = process.env.NEXT_PUBLIC_PASSWORD;
       }
+      
+      isPasswordCorrect = password === correctPassword;
     }
     
     if (isPasswordCorrect) {
