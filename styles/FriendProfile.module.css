@@ -12,6 +12,7 @@
   padding: 2rem;
   background-color: #f8f9fa;
   border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .avatar {
@@ -31,10 +32,11 @@
 .info h1 {
   margin: 0;
   font-size: 2rem;
+  color: #333;
 }
 
 .bio {
-  color: var(--secondary-color);
+  color: #666;
   line-height: 1.6;
   margin: 0;
 }
@@ -42,7 +44,7 @@
 .website {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background-color: var(--primary-color);
+  background-color: #333;
   color: white;
   border-radius: 4px;
   text-decoration: none;
@@ -51,7 +53,7 @@
 }
 
 .website:hover {
-  background-color: var(--secondary-color);
+  background-color: #555;
 }
 
 .section {
@@ -61,13 +63,98 @@
 .section h2 {
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 2px solid #ddd;
+  color: #333;
+}
+
+.accessNote {
+  margin-bottom: 1rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.accessLevels {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  list-style-type: none;
+}
+
+.accessLevels li {
+  margin-bottom: 0.75rem;
+  color: #666;
+}
+
+.accessLevels li:last-child {
+  margin-bottom: 0;
+}
+
+.statusMessage {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.updating {
+  background-color: #f8f9fa;
+  color: #666;
+}
+
+.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .podcasts {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 2rem;
+}
+
+.podcastWithControls {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding-bottom: 1.5rem;
+}
+
+.accessControls {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.accessControls label {
+  font-weight: bold;
+  color: #333;
+}
+
+.accessSelect {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  flex-grow: 1;
+  max-width: 200px;
+}
+
+.noPodcasts {
+  padding: 3rem;
+  text-align: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  color: #666;
 }
 
 @media (max-width: 768px) {
@@ -88,7 +175,13 @@
     align-self: center;
   }
 
-  .podcasts {
-    grid-template-columns: 1fr;
+  .accessControls {
+    flex-direction: column;
+    align-items: flex-start;
   }
-} 
+
+  .accessSelect {
+    width: 100%;
+    max-width: none;
+  }
+}
